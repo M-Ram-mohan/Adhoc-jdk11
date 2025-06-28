@@ -1,13 +1,28 @@
 import config.DropwizardConfig;
 import config.SpringConfig;
 import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import rest.DropwizardResource;
 
 public class DropwizardApplication extends Application<DropwizardConfig> {
     public static void main(String[] args) throws Exception {
         new DropwizardApplication().run(args);
+    }
+
+    @Override
+    public void initialize(Bootstrap<DropwizardConfig> bootstrap) {
+        bootstrap.addBundle(new SwaggerBundle<DropwizardConfig>() {
+            @Override
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(DropwizardConfig configuration) {
+                SwaggerBundleConfiguration swagger = new SwaggerBundleConfiguration();
+                swagger.setResourcePackage("rest");
+                return swagger;
+            }
+        });
     }
 
     @Override

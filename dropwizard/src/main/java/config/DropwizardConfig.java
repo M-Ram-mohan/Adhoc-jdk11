@@ -2,6 +2,7 @@ package config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class DropwizardConfig extends Configuration {
     @JsonProperty
@@ -9,8 +10,5 @@ public class DropwizardConfig extends Configuration {
 
     public String getMessage(){
         return message;
-    }
-    public void setMessage(String message){
-        this.message = message;
     }
 }
