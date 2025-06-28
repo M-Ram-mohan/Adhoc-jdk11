@@ -10,7 +10,7 @@ import java.util.List;
 
 public class SequentialRWOps implements RWOps {
 
-    private MongoTemplate template;
+    private final MongoTemplate template;
 
     public SequentialRWOps(MongoTemplate template) {
         this.template = template;
@@ -36,7 +36,7 @@ public class SequentialRWOps implements RWOps {
     private void measureReads() {
         for (int i = 0; i < COUNT; i++) {
             String key = String.valueOf(i);
-            List<Stage> stage = template.find(Query.query(Criteria.where("key").is(key)), Stage.class);
+            template.find(Query.query(Criteria.where("key").is(key)), Stage.class);
         }
     }
 

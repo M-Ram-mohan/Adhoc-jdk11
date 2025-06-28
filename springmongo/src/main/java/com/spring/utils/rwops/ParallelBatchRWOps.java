@@ -10,11 +10,23 @@ import pojos.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParallelBatchRWOps implements RWOps{
-    private MongoTemplate template;
+public class ParallelBatchRWOps implements RWOps {
+
+    private final MongoTemplate template;
+
+    private int BATCH_SIZE = RWOps.BATCH_SIZE;
+    private int COUNT = RWOps.COUNT;
+    private String comments = "ParallelBatchRWOps";
 
     public ParallelBatchRWOps(MongoTemplate template) {
         this.template = template;
+    }
+
+    public ParallelBatchRWOps(MongoTemplate mongoTemplate, int batchSize, int count, String comments) {
+        this.template = mongoTemplate;
+        BATCH_SIZE = batchSize;
+        COUNT = count;
+        this.comments = comments;
     }
 
     public void test() {
@@ -23,9 +35,9 @@ public class ParallelBatchRWOps implements RWOps{
     }
 
     private void measureOps() {
-        List<String> keys = getRecordKeys();
-        List<Stage> stageList = getStageTestRecords();
-        StopWatch watch = new StopWatch("ParallelBatchRWOps");
+        List<String> keys = getRecordKeys(COUNT);
+        List<Stage> stageList = getStageTestRecords(COUNT);
+        StopWatch watch = new StopWatch(comments);
         watch.start("writeOps");
         measureWrites(stageList);
         watch.stop();
@@ -55,8 +67,6 @@ public class ParallelBatchRWOps implements RWOps{
             List<Stage> batch = stageList.subList(i, Math.min(i + batchSize, stageList.size()));
             batches.add(batch);
         }
-        batches.parallelStream().forEach(batch -> {
-            template.bulkOps(BulkOperations.BulkMode.UNORDERED, Stage.class).insert(batch).execute();
-        });
+        batches.parallelStream().forEach(batch -> template.bulkOps(BulkOperations.BulkMode.UNORDERED, Stage.class).insert(batch).execute());
     }
 }

@@ -18,5 +18,20 @@ public class Stage {
         this.modelId = modelId;
         this.counter = counter;
     }
+    public String getKey(){
+        return key;
+    }
+    public String getStage(){
+        return stage;
+    }
+    public String getComments(){
+        return comments;
+    }
+    public String getModelId(){
+        return modelId;
+    }
+    public int getCounter(){
+        return counter;
+    }
 }
 

@@ -12,10 +12,21 @@ import java.util.List;
 
 public class SequentialBatchRWOps implements RWOps {
 
-    private MongoTemplate template;
+    private final MongoTemplate template;
+
+    private int BATCH_SIZE = RWOps.BATCH_SIZE;
+    private int COUNT = RWOps.COUNT;
+    private String comments = "SequentialBatchRWOps";
 
     public SequentialBatchRWOps(MongoTemplate mongoTemplate) {
         this.template = mongoTemplate;
+    }
+
+    public SequentialBatchRWOps(MongoTemplate mongoTemplate, int batchSize, int count, String comments) {
+        this.template = mongoTemplate;
+        BATCH_SIZE = batchSize;
+        COUNT = count;
+        this.comments = comments;
     }
 
     public void test() {
@@ -24,9 +35,9 @@ public class SequentialBatchRWOps implements RWOps {
     }
 
     private void measureOps() {
-        List<Stage> stageList = getStageTestRecords();
-        List<String> keys = getRecordKeys();
-        StopWatch watch = new StopWatch("SequentialBatchRWOps");
+        List<Stage> stageList = getStageTestRecords(COUNT);
+        List<String> keys = getRecordKeys(COUNT);
+        StopWatch watch = new StopWatch(comments);
         watch.start("writeOps");
         measureWrites(stageList);
         watch.stop();

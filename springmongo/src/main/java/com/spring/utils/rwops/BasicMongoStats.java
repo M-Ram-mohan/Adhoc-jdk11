@@ -1,7 +1,6 @@
-package com.spring.utils;
+package com.spring.utils.rwops;
 
 
-import com.spring.utils.rwops.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -12,12 +11,17 @@ Note :
 2. Retrieved values are converted into the desired target type in this case, String. It is also possible to map the values to a more complex type if the stored field contains a document.
  */
 @Service
-public class BasicMongoStats {
+public class BasicMongoStats implements RWOps{
 
     private  MongoTemplate mongoTemplate;
 
     @Autowired
     public BasicMongoStats(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    @Override
+    public void test() {
         System.out.println("StartedTesting");
         RWOps sequentialRWOps = new SequentialRWOps(mongoTemplate);
         sequentialRWOps.test();

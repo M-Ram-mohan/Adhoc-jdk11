@@ -9,7 +9,7 @@ import pojos.Stage;
 import java.util.List;
 
 public class ParallelRWOps implements RWOps {
-    private MongoTemplate template;
+    private final MongoTemplate template;
 
     public ParallelRWOps(MongoTemplate template) {
         this.template = template;
@@ -38,8 +38,6 @@ public class ParallelRWOps implements RWOps {
     }
 
     private void measureWrites(List<Stage> stageList) {
-        stageList.parallelStream().forEach(stage -> {
-            template.save(stage);
-        });
+        stageList.parallelStream().forEach(template::save);
     }
 }
