@@ -1,0 +1,59 @@
+package com.spring.utils.rwops;
+
+import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.StopWatch;
+import pojos.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SequentialBatchRWOps implements RWOps {
+
+    private MongoTemplate template;
+
+    public SequentialBatchRWOps(MongoTemplate mongoTemplate) {
+        this.template = mongoTemplate;
+    }
+
+    public void test() {
+        template.dropCollection(Stage.class);
+        measureOps();
+    }
+
+    private void measureOps() {
+        List<Stage> stageList = getStageTestRecords();
+        List<String> keys = getRecordKeys();
+        StopWatch watch = new StopWatch("SequentialBatchRWOps");
+        watch.start("writeOps");
+        measureWrites(stageList);
+        watch.stop();
+        watch.start("readOps");
+        measureReads(keys);
+        watch.stop();
+        System.out.println("Detailed report:\n" + watch.prettyPrint());
+    }
+
+    private void measureReads(List<String> ids) {
+        int i = 0;
+        int batchSize = BATCH_SIZE;
+        while (i < ids.size()) {
+            List<String> batch = ids.subList(i, Math.min(i + batchSize, ids.size()));
+            Query query = new Query(Criteria.where("_id").in(batch));
+            template.find(query, Stage.class);
+            i += batchSize;
+        }
+    }
+
+    private void measureWrites(List<Stage> stageList) {
+        int batchSize = BATCH_SIZE;
+        for (int i = 0; i < stageList.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, stageList.size());
+            template.bulkOps(BulkOperations.BulkMode.UNORDERED, Stage.class).insert(new ArrayList<>(stageList.subList(i, end))).execute();
+        }
+    }
+
+
+}

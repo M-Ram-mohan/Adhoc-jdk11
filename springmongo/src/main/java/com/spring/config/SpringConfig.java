@@ -1,10 +1,9 @@
 package com.spring.config;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.spring.utils.MongoConnectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,12 +14,19 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 
 @Configuration
-@ComponentScan("com.spring.utils")
+@ComponentScan("com.spring")
 public class SpringConfig {
 
+    // TODO : Decide to choose between Mongo client or Mongo Client factory bean. One gives
+    //  more flexibility to listeners and monitors stuff and the other has "Proper exception handling"
     @Bean("client1")
     public MongoClient mongoClient(){
-        return MongoClients.create("mongodb+srv://dummy222mail:HPnrk88KDhvCqbqh@grp.4231awd.mongodb.net/?retryWrites=true&w=majority&appName=grp");
+        ConnectionString connectionString = new ConnectionString("mongodb+srv://dummy222mail:HPnrk88KDhvCqbqh@grp.4231awd.mongodb.net/?retryWrites=true&w=majority&appName=grp");
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .applicationName("graph-service")
+                .build();
+        return MongoClients.create(settings);
     }
 
     @Bean("client2")
@@ -31,7 +37,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public MongoDatabaseFactory mongoDatabaseFactory(@Qualifier("client2") MongoClient client) {
+    public MongoDatabaseFactory mongoDatabaseFactory(@Qualifier("client1") MongoClient client) {
         return new SimpleMongoClientDatabaseFactory(client, "test_mongo");
     }
 
