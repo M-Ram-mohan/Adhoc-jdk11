@@ -5,11 +5,17 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import rest.DropwizardResource;
 
 public class DropwizardApplication extends Application<DropwizardConfig> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DropwizardApplication.class);
+
     public static void main(String[] args) throws Exception {
+        LOGGER.debug("Checking thread, class and time");
         new DropwizardApplication().run(args);
     }
 

@@ -2,4 +2,21 @@ server:
   applicationConnectors:
     - type: http
       port: 8080
+
 message: "pika pika"
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      threshold: INFO
+      logFormat: "%d{yyyy-MM-dd HH:mm:ss z} [%t] %-5level %logger{36} - %msg%n"
+      timeZone: IST
+      target: stderr
+    - type: file
+      currentLogFilename: ./logs/dropwizard-app.log
+      archivedLogFilenamePattern: ./logs/dropwizard-app-%d-%i.log.gz
+      archivedFileCount: 2
+      logFormat: "%d{yyyy-MM-dd HH:mm:ss z} [%t] %-5level %logger{36} - %msg%n"
+      timeZone: IST
+      maxFileSize: 1 GB
