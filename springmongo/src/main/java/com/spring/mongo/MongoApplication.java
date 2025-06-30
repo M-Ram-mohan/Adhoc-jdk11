@@ -5,7 +5,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class MongoApplication {
     public static void main(String[] args){
-        System.out.println("Hello jova");
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(SpringConfig.class);
         ctx.refresh();

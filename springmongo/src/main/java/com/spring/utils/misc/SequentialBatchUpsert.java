@@ -1,5 +1,8 @@
 package com.spring.utils.misc;
 
+import com.mongodb.MongoSocketException;
+import com.mongodb.MongoTimeoutException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -39,7 +42,19 @@ public class SequentialBatchUpsert implements DbRequest{
                         .set("counter", stage.getCounter());
                 bulkOps.upsert(query, update);
             }
-            bulkOps.execute();
+            try {
+                bulkOps.execute();
+            } catch (DataAccessException ex) {
+                if(ex.getCause() instanceof MongoTimeoutException){
+                    System.out.println("Timed out waiting for a connection from the pool");
+                } else if(ex.getCause() instanceof MongoSocketException) {
+                    System.out.println("Mongo Socket Exception : " + ex.getCause().getMessage());
+                } else {
+                    System.out.println("Spring Mongo Exception : " + ex.getCause().getMessage());
+                }
+            } catch (Exception ex) {
+                System.out.println("Exception occurred : " + ex.getMessage());
+            }
         }
     }
 }

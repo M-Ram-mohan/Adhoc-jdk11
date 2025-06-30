@@ -1,7 +1,7 @@
 package com.spring.utils.misc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mongodb.MongoSocketException;
+import com.mongodb.MongoTimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.BulkOperations;
@@ -17,8 +17,6 @@ import java.util.List;
 public class QueriesFactory implements DbRequest {
 
     MongoTemplate template;
-
-    private Logger LOGGER = LoggerFactory.getLogger(QueriesFactory.class);
 
     @Autowired
     public QueriesFactory(MongoTemplate template) {
@@ -71,12 +69,21 @@ public class QueriesFactory implements DbRequest {
         batches.parallelStream().forEach(batch -> {
             int retry = 0;
             while(retry < 3) {
-                try{
+                try {
                     template.bulkOps(BulkOperations.BulkMode.UNORDERED, Stage.class).insert(batch).execute();
                     break;
                 } catch (DataAccessException ex) {
                     retry++;
-                    LOGGER.error("Exception while inserting the data : {}", ex.getMessage());
+                    if(ex.getCause() instanceof MongoTimeoutException){
+                        System.out.println("Timed out waiting for a connection from the pool");
+                    } else if(ex.getCause() instanceof MongoSocketException) {
+                        System.out.println("Mongo Socket Exception : " + ex.getMessage());
+                    } else {
+                        System.out.println("Spring Mongo Exception : " + ex.getMessage());
+                    }
+                } catch (Exception ex) {
+                    retry++;
+                    System.out.println("Exception occurred : " + ex.getMessage());
                 }
             }
         });
