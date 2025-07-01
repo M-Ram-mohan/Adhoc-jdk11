@@ -3,8 +3,10 @@ package com.spring.utils.misc;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoSocketReadTimeoutException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.model.ReplaceOptions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.FindAndReplaceOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -37,12 +39,8 @@ public class ParallelBatchUpsert implements DbRequest {
 
             for (Stage stage : batch) {
                 Query query = Query.query(Criteria.where("_id").is(stage.getKey()));
-                Update update = new Update()
-                        .set("modelId", stage.getModelId())
-                        .set("comments", stage.getComments())
-                        .set("stage", stage.getStage())
-                        .set("counter", stage.getCounter());
-                bulkOps.upsert(query, update);
+                FindAndReplaceOptions options = new FindAndReplaceOptions().upsert();
+                bulkOps.replaceOne(query, stage, options);
             }
             bulkOperationsList.add(bulkOps);
         }
